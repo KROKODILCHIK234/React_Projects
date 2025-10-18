@@ -62,45 +62,46 @@ const PlayersPage: React.FC = () => {
   console.log('🔍 PlayersPage - loading:', playersLoading);
   console.log('🔍 PlayersPage - error:', playersError);
 
+  // Только базовые позиции
+  const basicPositions = ['GK', 'CB', 'RB', 'LB', 'CM', 'CAM', 'LW', 'ST', 'RW'];
+  const availableLeagues = ['all', ...Array.from(new Set(allPlayers.map(player => player.league)))];
+  const availablePositions = ['all', ...basicPositions];
+
   const filteredPlayers = allPlayers.filter(player =>
     (selectedLeague === 'all' || player.league === selectedLeague) &&
     (selectedPosition === 'all' || player.position === selectedPosition) &&
     (player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
      player.team.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     player.nationality.toLowerCase().includes(searchTerm.toLowerCase()))
+     player.nationality.toLowerCase().includes(searchTerm.toLowerCase())) &&
+    (selectedPosition === 'all' || basicPositions.includes(player.position))
   );
-
-  const availableLeagues = ['all', ...Array.from(new Set(allPlayers.map(player => player.league)))];
-  const availablePositions = ['all', ...Array.from(new Set(allPlayers.map(player => player.position)))];
 
   const getPositionColor = (position: string) => {
     switch (position) {
-      case 'ST': return '#ef4444'; // Red
-      case 'RW':
-      case 'LW': return '#f59e0b'; // Orange
-      case 'CAM':
-      case 'CM':
-      case 'CDM': return '#8b5cf6'; // Purple
-      case 'CB':
-      case 'LB':
-      case 'RB': return '#10b981'; // Green
-      case 'GK': return '#3b82f6'; // Blue
+      case 'GK': return '#3b82f6'; // Blue - Вратарь
+      case 'CB': return '#10b981'; // Green - Центральный защитник
+      case 'RB': return '#6366f1'; // Indigo - Правый защитник
+      case 'LB': return '#6366f1'; // Indigo - Левый защитник
+      case 'CM': return '#06b6d4'; // Cyan - Центральный полузащитник
+      case 'CAM': return '#8b5cf6'; // Purple - Центральный атакующий полузащитник
+      case 'LW': return '#f59e0b'; // Orange - Левый вингер
+      case 'ST': return '#ef4444'; // Red - Нападающий
+      case 'RW': return '#f59e0b'; // Orange - Правый вингер
       default: return '#64748b'; // Gray
     }
   };
 
   const getPositionName = (position: string) => {
     const positions: { [key: string]: string } = {
-      'ST': 'Нападающий',
-      'RW': 'Правый вингер',
-      'LW': 'Левый вингер',
-      'CAM': 'Атакующий полузащитник',
-      'CM': 'Центральный полузащитник',
-      'CDM': 'Опорный полузащитник',
+      'GK': 'Вратарь',
       'CB': 'Центральный защитник',
-      'LB': 'Левый защитник',
       'RB': 'Правый защитник',
-      'GK': 'Вратарь'
+      'LB': 'Левый защитник',
+      'CM': 'Центральный полузащитник',
+      'CAM': 'Центральный атакующий полузащитник',
+      'LW': 'Левый вингер',
+      'ST': 'Нападающий',
+      'RW': 'Правый вингер'
     };
     return positions[position] || position;
   };

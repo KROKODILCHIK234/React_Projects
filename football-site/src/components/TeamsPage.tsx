@@ -61,20 +61,39 @@ const TeamsPage: React.FC = () => {
   console.log('🔍 TeamsPage - loading:', teamsLoading);
   console.log('🔍 TeamsPage - error:', teamsError);
 
-  const filteredTeams = allTeams.filter(team =>
+  // Только 5 основных лиг
+  const mainLeagues = ['pl', 'pd', 'bl1', 'sa', 'fl1'];
+  const availableLeagues = ['all', ...mainLeagues];
+
+  const filteredTeams = allTeams.filter(team => 
     (selectedLeague === 'all' || team.league === selectedLeague) &&
     (team.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     team.country.toLowerCase().includes(searchTerm.toLowerCase()))
+     team.country.toLowerCase().includes(searchTerm.toLowerCase())) &&
+    (selectedLeague === 'all' || mainLeagues.includes(team.league))
   );
 
-  const availableLeagues = ['all', ...Array.from(new Set(allTeams.map(team => team.league)))];
+  const getLeagueFullName = (leagueCode: string) => {
+    switch (leagueCode) {
+      case 'pl': return 'Premier League';
+      case 'pd': return 'La Liga';
+      case 'bl1': return 'Bundesliga';
+      case 'sa': return 'Serie A';
+      case 'fl1': return 'Ligue 1';
+      default: return leagueCode;
+    }
+  };
 
   const getLeagueColor = (league: string) => {
     switch (league) {
+      case 'pl':
       case 'Premier League': return '#37003C';
+      case 'pd':
       case 'La Liga': return '#FF6900';
+      case 'bl1':
       case 'Bundesliga': return '#D20515';
+      case 'sa':
       case 'Serie A': return '#0068A8';
+      case 'fl1':
       case 'Ligue 1': return '#241F20';
       default: return '#8b5cf6';
     }
@@ -123,14 +142,14 @@ const TeamsPage: React.FC = () => {
             <div className="stat-item">
               <Users size={32} />
               <div>
-                <span className="stat-number">{allTeams.length}+</span>
+                <span className="stat-number">98</span>
                 <span className="stat-label">Всего команд</span>
               </div>
             </div>
             <div className="stat-item">
               <Trophy size={32} />
               <div>
-                <span className="stat-number">{leaguesData.length}</span>
+                <span className="stat-number">5</span>
                 <span className="stat-label">Лиг</span>
               </div>
             </div>
@@ -165,7 +184,7 @@ const TeamsPage: React.FC = () => {
                   onClick={() => setSelectedLeague(league)}
                   className={`filter-btn ${selectedLeague === league ? 'active' : ''}`}
                 >
-                  {league === 'all' ? 'Все лиги' : league}
+                  {league === 'all' ? 'Все лиги' : getLeagueFullName(league)}
                 </button>
               ))}
             </div>
@@ -288,7 +307,7 @@ const TeamsPage: React.FC = () => {
                         className="league-badge-large"
                         style={{ backgroundColor: getLeagueColor(selectedTeam.league) }}
                       >
-                        {selectedTeam.league}
+                        {getLeagueFullName(selectedTeam.league)}
                       </span>
                     </div>
                     <div className="team-detail-location">
