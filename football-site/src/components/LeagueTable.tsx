@@ -57,40 +57,81 @@ const LeagueTable: React.FC<LeagueTableProps> = ({ leagueId, leagueName, onTeamS
         // Фильтруем команды по лиге
         let leagueTeams = footballData.teams || [];
         
-        // Если это Premier League, фильтруем только команды с league === 'pl'
+        // Фильтруем команды по лиге
         if (leagueId === 'premier-league' || leagueName.toLowerCase().includes('premier')) {
           leagueTeams = leagueTeams.filter((team: any) => 
             team.league === 'pl' && team.country === 'England'
           );
+        } else if (leagueId === 'la-liga' || leagueName.toLowerCase().includes('laliga') || leagueName.toLowerCase().includes('la liga')) {
+          leagueTeams = leagueTeams.filter((team: any) => 
+            team.league === 'pd' && team.country === 'Spain'
+          );
+        } else if (leagueId === 'bundesliga' || leagueName.toLowerCase().includes('bundesliga')) {
+          leagueTeams = leagueTeams.filter((team: any) => 
+            team.league === 'bl1' && team.country === 'Germany'
+          );
+        } else if (leagueId === 'serie-a' || leagueName.toLowerCase().includes('serie')) {
+          leagueTeams = leagueTeams.filter((team: any) => 
+            team.league === 'sa' && team.country === 'Italy'
+          );
+        } else if (leagueId === 'ligue-1' || leagueName.toLowerCase().includes('ligue')) {
+          leagueTeams = leagueTeams.filter((team: any) => 
+            team.league === 'fl1' && team.country === 'France'
+          );
         }
         
-        // Создаем реалистичные данные для Premier League
-        const generateRealisticStats = (teamName: string, position: number) => {
-          // Базовые данные для реалистичной таблицы Premier League
-          const baseStats = {
-            'Arsenal FC': { played: 7, won: 5, drawn: 1, lost: 1, goalsFor: 14, goalsAgainst: 3, points: 16 },
-            'Liverpool FC': { played: 7, won: 4, drawn: 3, lost: 0, goalsFor: 13, goalsAgainst: 9, points: 15 },
-            'Tottenham Hotspur FC': { played: 7, won: 4, drawn: 2, lost: 1, goalsFor: 13, goalsAgainst: 5, points: 14 },
-            'AFC Bournemouth': { played: 7, won: 4, drawn: 2, lost: 1, goalsFor: 11, goalsAgainst: 8, points: 14 },
-            'Manchester City FC': { played: 7, won: 4, drawn: 1, lost: 2, goalsFor: 15, goalsAgainst: 6, points: 13 },
-            'Crystal Palace FC': { played: 7, won: 3, drawn: 3, lost: 1, goalsFor: 9, goalsAgainst: 5, points: 12 },
-            'Chelsea FC': { played: 7, won: 3, drawn: 2, lost: 2, goalsFor: 13, goalsAgainst: 9, points: 11 },
-            'Everton FC': { played: 7, won: 3, drawn: 2, lost: 2, goalsFor: 9, goalsAgainst: 7, points: 11 },
-            'Sunderland AFC': { played: 7, won: 3, drawn: 2, lost: 2, goalsFor: 7, goalsAgainst: 6, points: 11 },
-            'Manchester United FC': { played: 7, won: 3, drawn: 1, lost: 3, goalsFor: 9, goalsAgainst: 11, points: 10 },
-            'Newcastle United FC': { played: 7, won: 2, drawn: 3, lost: 2, goalsFor: 6, goalsAgainst: 5, points: 9 },
-            'Brighton & Hove Albion FC': { played: 7, won: 2, drawn: 3, lost: 2, goalsFor: 10, goalsAgainst: 10, points: 9 },
-            'Aston Villa FC': { played: 7, won: 2, drawn: 3, lost: 2, goalsFor: 6, goalsAgainst: 7, points: 9 },
-            'Fulham FC': { played: 7, won: 2, drawn: 2, lost: 3, goalsFor: 8, goalsAgainst: 11, points: 8 },
-            'Leeds United FC': { played: 7, won: 2, drawn: 2, lost: 3, goalsFor: 7, goalsAgainst: 11, points: 8 },
-            'Brentford FC': { played: 7, won: 2, drawn: 1, lost: 4, goalsFor: 9, goalsAgainst: 12, points: 7 },
-            'Nottingham Forest FC': { played: 7, won: 1, drawn: 2, lost: 4, goalsFor: 5, goalsAgainst: 12, points: 5 },
-            'Burnley FC': { played: 7, won: 1, drawn: 1, lost: 5, goalsFor: 7, goalsAgainst: 15, points: 4 },
-            'West Ham United FC': { played: 7, won: 1, drawn: 1, lost: 5, goalsFor: 6, goalsAgainst: 16, points: 4 },
-            'Wolverhampton Wanderers FC': { played: 7, won: 0, drawn: 2, lost: 5, goalsFor: 5, goalsAgainst: 14, points: 2 }
+        // Создаем реалистичные данные для всех лиг
+        const generateRealisticStats = (teamName: string, position: number, leagueName: string) => {
+          // Базовые данные для разных лиг
+          const baseStats: { [key: string]: { [key: string]: any } } = {
+            'Premier League': {
+              'Arsenal FC': { played: 7, won: 5, drawn: 1, lost: 1, goalsFor: 14, goalsAgainst: 3, points: 16 },
+              'Liverpool FC': { played: 7, won: 4, drawn: 3, lost: 0, goalsFor: 13, goalsAgainst: 9, points: 15 },
+              'Tottenham Hotspur FC': { played: 7, won: 4, drawn: 2, lost: 1, goalsFor: 13, goalsAgainst: 5, points: 14 },
+              'AFC Bournemouth': { played: 7, won: 4, drawn: 2, lost: 1, goalsFor: 11, goalsAgainst: 8, points: 14 },
+              'Manchester City FC': { played: 7, won: 4, drawn: 1, lost: 2, goalsFor: 15, goalsAgainst: 6, points: 13 },
+              'Crystal Palace FC': { played: 7, won: 3, drawn: 3, lost: 1, goalsFor: 9, goalsAgainst: 5, points: 12 },
+              'Chelsea FC': { played: 7, won: 3, drawn: 2, lost: 2, goalsFor: 13, goalsAgainst: 9, points: 11 },
+              'Everton FC': { played: 7, won: 3, drawn: 2, lost: 2, goalsFor: 9, goalsAgainst: 7, points: 11 },
+              'Sunderland AFC': { played: 7, won: 3, drawn: 2, lost: 2, goalsFor: 7, goalsAgainst: 6, points: 11 },
+              'Manchester United FC': { played: 7, won: 3, drawn: 1, lost: 3, goalsFor: 9, goalsAgainst: 11, points: 10 },
+              'Newcastle United FC': { played: 7, won: 2, drawn: 3, lost: 2, goalsFor: 6, goalsAgainst: 5, points: 9 },
+              'Brighton & Hove Albion FC': { played: 7, won: 2, drawn: 3, lost: 2, goalsFor: 10, goalsAgainst: 10, points: 9 },
+              'Aston Villa FC': { played: 7, won: 2, drawn: 3, lost: 2, goalsFor: 6, goalsAgainst: 7, points: 9 },
+              'Fulham FC': { played: 7, won: 2, drawn: 2, lost: 3, goalsFor: 8, goalsAgainst: 11, points: 8 },
+              'Leeds United FC': { played: 7, won: 2, drawn: 2, lost: 3, goalsFor: 7, goalsAgainst: 11, points: 8 },
+              'Brentford FC': { played: 7, won: 2, drawn: 1, lost: 4, goalsFor: 9, goalsAgainst: 12, points: 7 },
+              'Nottingham Forest FC': { played: 7, won: 1, drawn: 2, lost: 4, goalsFor: 5, goalsAgainst: 12, points: 5 },
+              'Burnley FC': { played: 7, won: 1, drawn: 1, lost: 5, goalsFor: 7, goalsAgainst: 15, points: 4 },
+              'West Ham United FC': { played: 7, won: 1, drawn: 1, lost: 5, goalsFor: 6, goalsAgainst: 16, points: 4 },
+              'Wolverhampton Wanderers FC': { played: 7, won: 0, drawn: 2, lost: 5, goalsFor: 5, goalsAgainst: 14, points: 2 }
+            },
+            'La Liga': {
+              'Real Madrid CF': { played: 7, won: 6, drawn: 1, lost: 0, goalsFor: 18, goalsAgainst: 4, points: 19 },
+              'FC Barcelona': { played: 7, won: 5, drawn: 2, lost: 0, goalsFor: 16, goalsAgainst: 6, points: 17 },
+              'Atlético de Madrid': { played: 7, won: 4, drawn: 2, lost: 1, goalsFor: 12, goalsAgainst: 5, points: 14 },
+              'Real Sociedad': { played: 7, won: 4, drawn: 1, lost: 2, goalsFor: 11, goalsAgainst: 8, points: 13 },
+              'Athletic Club': { played: 7, won: 3, drawn: 3, lost: 1, goalsFor: 9, goalsAgainst: 6, points: 12 },
+              'Real Betis': { played: 7, won: 3, drawn: 2, lost: 2, goalsFor: 10, goalsAgainst: 9, points: 11 },
+              'Villarreal CF': { played: 7, won: 3, drawn: 2, lost: 2, goalsFor: 8, goalsAgainst: 7, points: 11 },
+              'Valencia CF': { played: 7, won: 3, drawn: 1, lost: 3, goalsFor: 9, goalsAgainst: 10, points: 10 },
+              'Sevilla FC': { played: 7, won: 2, drawn: 3, lost: 2, goalsFor: 7, goalsAgainst: 8, points: 9 },
+              'CA Osasuna': { played: 7, won: 2, drawn: 3, lost: 2, goalsFor: 6, goalsAgainst: 7, points: 9 },
+              'Getafe CF': { played: 7, won: 2, drawn: 2, lost: 3, goalsFor: 8, goalsAgainst: 10, points: 8 },
+              'Rayo Vallecano': { played: 7, won: 2, drawn: 2, lost: 3, goalsFor: 7, goalsAgainst: 9, points: 8 },
+              'RC Celta de Vigo': { played: 7, won: 2, drawn: 1, lost: 4, goalsFor: 6, goalsAgainst: 11, points: 7 },
+              'UD Las Palmas': { played: 7, won: 1, drawn: 3, lost: 3, goalsFor: 5, goalsAgainst: 9, points: 6 },
+              'Real Valladolid CF': { played: 7, won: 1, drawn: 2, lost: 4, goalsFor: 4, goalsAgainst: 12, points: 5 },
+              'Cádiz CF': { played: 7, won: 1, drawn: 2, lost: 4, goalsFor: 3, goalsAgainst: 10, points: 5 },
+              'Deportivo Alavés': { played: 7, won: 1, drawn: 1, lost: 5, goalsFor: 3, goalsAgainst: 13, points: 4 },
+              'Granada CF': { played: 7, won: 0, drawn: 3, lost: 4, goalsFor: 2, goalsAgainst: 12, points: 3 },
+              'UD Almería': { played: 7, won: 0, drawn: 2, lost: 5, goalsFor: 1, goalsAgainst: 14, points: 2 },
+              'Mallorca': { played: 7, won: 0, drawn: 1, lost: 6, goalsFor: 1, goalsAgainst: 16, points: 1 }
+            }
           };
 
-          const stats = baseStats[teamName as keyof typeof baseStats] || {
+          const leagueStats = baseStats[leagueName] || baseStats['Premier League'];
+          const stats = leagueStats[teamName] || {
             played: 7,
             won: Math.max(0, 6 - position),
             drawn: Math.floor(Math.random() * 3) + 1,
@@ -109,7 +150,7 @@ const LeagueTable: React.FC<LeagueTableProps> = ({ leagueId, leagueName, onTeamS
 
         // Преобразуем данные в нужный формат
         const formattedTeams: Team[] = leagueTeams.map((team: any, index: number) => {
-          const realisticStats = generateRealisticStats(team.name, index + 1);
+          const realisticStats = generateRealisticStats(team.name, index + 1, leagueName);
           
           return {
             id: team.id || team.name.toLowerCase().replace(/\s+/g, '-'),
@@ -259,14 +300,14 @@ const LeagueTable: React.FC<LeagueTableProps> = ({ leagueId, leagueName, onTeamS
                 <td className="px-6 py-4">
                   <div className="flex items-center space-x-4">
                     <div className="relative">
-                      <img 
-                        src={team.logo} 
-                        alt={team.name}
+                    <img
+                      src={team.logo}
+                      alt={team.name}
                         className="w-8 h-8 rounded-full object-contain bg-white p-1 shadow-md"
-                        onError={(e) => {
+                      onError={(e) => {
                           e.currentTarget.src = 'https://via.placeholder.com/32x32/cccccc/666666?text=FC';
-                        }}
-                      />
+                      }}
+                    />
                     </div>
                     <span className="text-sm font-semibold text-white truncate max-w-48">
                       {team.name}
@@ -304,7 +345,7 @@ const LeagueTable: React.FC<LeagueTableProps> = ({ leagueId, leagueName, onTeamS
       {/* Подвал таблицы */}
       <div className="px-6 py-4 bg-gradient-to-r from-gray-800 to-gray-700 border-t border-gray-600">
         <div className="flex items-center justify-between text-sm text-gray-400">
-          <span>📊 Premier League 2024/25 Season</span>
+          <span>📊 {leagueName} 2024/25 Season</span>
           <span>For the 💙 of the game</span>
         </div>
       </div>
@@ -328,15 +369,15 @@ const LeagueTable: React.FC<LeagueTableProps> = ({ leagueId, leagueName, onTeamS
                     <h2 className="text-2xl font-bold text-white">
                       {teams.find(t => t.id === selectedTeam)?.name}
                     </h2>
-                    <p className="text-gray-400">Premier League 2024/25</p>
+                    <p className="text-gray-400">{leagueName} 2024/25</p>
                   </div>
                 </div>
-                <button 
+              <button
                   className="text-gray-400 hover:text-white text-3xl font-bold transition-colors duration-200"
-                  onClick={() => setSelectedTeam(null)}
-                >
-                  ×
-                </button>
+                onClick={() => setSelectedTeam(null)}
+              >
+                ×
+              </button>
               </div>
             </div>
             
@@ -364,9 +405,9 @@ const LeagueTable: React.FC<LeagueTableProps> = ({ leagueId, leagueName, onTeamS
                       <span className="text-gray-300">Поражения:</span>
                       <span className="text-red-400 font-bold text-lg">{teams.find(t => t.id === selectedTeam)?.lost}</span>
                     </div>
+                    </div>
                   </div>
-                </div>
-                
+                  
                 <div className="bg-gradient-to-br from-gray-700 to-gray-600 p-6 rounded-xl">
                   <h3 className="text-xl font-bold text-white mb-4 flex items-center">
                     <span className="mr-2">⚽</span>
