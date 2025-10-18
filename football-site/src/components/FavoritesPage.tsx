@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Heart, Users, Star, X, MapPin } from 'lucide-react';
 import ScrollAnimation from './ScrollAnimation';
+import { getAllTeams, getAllPlayers } from '../services/footballApi';
 
 interface Team {
   id: string;
@@ -33,42 +34,17 @@ interface Player {
   description: string;
 }
 
-// Mock data (should be consistent with TeamsPage and PlayersPage)
-const allTeams: Team[] = [
-  { id: 'arsenal', name: 'Arsenal', logo: 'https://upload.wikimedia.org/wikipedia/en/5/53/Arsenal_FC.svg', league: 'Premier League', country: 'Англия', stadium: 'Emirates Stadium', coach: 'Mikel Arteta', playersCount: 25, titles: 3, description: 'Один из самых успешных клубов Англии.' },
-  { id: 'man-city', name: 'Manchester City', logo: 'https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_logo.svg', league: 'Premier League', country: 'Англия', stadium: 'Etihad Stadium', coach: 'Pep Guardiola', playersCount: 27, titles: 9, description: 'Действующие чемпионы Премьер-лиги.' },
-  { id: 'liverpool', name: 'Liverpool', logo: 'https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg', league: 'Premier League', country: 'Англия', stadium: 'Anfield', coach: 'Jürgen Klopp', playersCount: 25, titles: 19, description: 'Исторический клуб с богатой историей.' },
-  { id: 'real-madrid', name: 'Real Madrid', logo: 'https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg', league: 'La Liga', country: 'Испания', stadium: 'Santiago Bernabéu', coach: 'Carlo Ancelotti', playersCount: 25, titles: 35, description: 'Самый титулованный клуб Испании.' },
-  { id: 'barcelona', name: 'Barcelona', logo: 'https://upload.wikimedia.org/wikipedia/en/4/47/FC_Barcelona_%28crest%29.svg', league: 'La Liga', country: 'Испания', stadium: 'Spotify Camp Nou', coach: 'Xavi', playersCount: 24, titles: 27, description: 'Каталонский гранд.' },
-  { id: 'bayern-munich', name: 'Bayern Munich', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/04/FC_Bayern_Munich_logo_%282017%29.svg', league: 'Bundesliga', country: 'Германия', stadium: 'Allianz Arena', coach: 'Thomas Tuchel', playersCount: 28, titles: 33, description: 'Рекордмайстер Германии.' },
-  { id: 'psg', name: 'Paris Saint-Germain', logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/4/47/Paris_Saint-Germain_F.C..svg/1200px-Paris_Saint-Germain_F.C..svg.png', league: 'Ligue 1', country: 'Франция', stadium: 'Parc des Princes', coach: 'Luis Enrique', playersCount: 27, titles: 11, description: 'Доминирующий клуб во Франции.' },
-  { id: 'juventus', name: 'Juventus', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Juventus_FC_2017_logo.svg/1200px-Juventus_FC_2017_logo.svg.png', league: 'Serie A', country: 'Италия', stadium: 'Allianz Stadium', coach: 'Massimiliano Allegri', playersCount: 26, titles: 36, description: 'Старая синьора итальянского футбола.' },
-  { id: 'man-utd', name: 'Manchester Utd', logo: 'https://upload.wikimedia.org/wikipedia/en/7/7a/Manchester_United_FC_crest.svg', league: 'Premier League', country: 'Англия', stadium: 'Old Trafford', coach: 'Erik ten Hag', playersCount: 26, titles: 20, description: 'Один из самых титулованных клубов Англии.' },
-  { id: 'chelsea', name: 'Chelsea', logo: 'https://upload.wikimedia.org/wikipedia/en/thumb/c/cc/Chelsea_FC.svg/1200px-Chelsea_FC.svg.png', league: 'Premier League', country: 'Англия', stadium: 'Stamford Bridge', coach: 'Mauricio Pochettino', playersCount: 27, titles: 6, description: 'Один из ведущих клубов Лондона.' },
-  { id: 'dortmund', name: 'Borussia Dortmund', logo: 'https://upload.wikimedia.org/wikipedia/commons/6/67/Borussia_Dortmund_logo.svg', league: 'Bundesliga', country: 'Германия', stadium: 'Signal Iduna Park', coach: 'Edin Terzić', playersCount: 26, titles: 8, description: 'Один из самых популярных клубов Германии.' },
-  { id: 'inter-milan', name: 'Inter Milan', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/05/FC_Internazionale_Milano_2021.svg', league: 'Serie A', country: 'Италия', stadium: 'San Siro', coach: 'Simone Inzaghi', playersCount: 25, titles: 19, description: 'Чемпионы Серии А.' },
-  { id: 'ac-milan', name: 'AC Milan', logo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Logo_of_AC_Milan.svg/1200px-Logo_of_AC_Milan.svg.png', league: 'Serie A', country: 'Италия', stadium: 'San Siro', coach: 'Stefano Pioli', playersCount: 24, titles: 19, description: 'Один из самых успешных клубов Италии.' },
-  { id: 'atletico-madrid', name: 'Atlético Madrid', logo: 'https://upload.wikimedia.org/wikipedia/en/f/f4/Atletico_Madrid_2017_logo.svg', league: 'La Liga', country: 'Испания', stadium: 'Cívitas Metropolitano', coach: 'Diego Simeone', playersCount: 25, titles: 11, description: 'Мадридский клуб с сильной обороной.' },
-  { id: 'tottenham', name: 'Tottenham Hotspur', logo: 'https://upload.wikimedia.org/wikipedia/en/b/b4/Tottenham_Hotspur.svg', league: 'Premier League', country: 'Англия', stadium: 'Tottenham Hotspur Stadium', coach: 'Ange Postecoglou', playersCount: 26, titles: 0, description: 'Лондонский клуб с амбициозными планами.' },
-];
+// Тестовые данные удалены - используем API
 
-const allPlayers: Player[] = [
-  { id: 'messi', name: 'Лионель Месси', photo: 'https://upload.wikimedia.org/wikipedia/commons/b/b4/Lionel_Messi_2023.jpg', team: 'Inter Miami CF', teamLogo: 'https://upload.wikimedia.org/wikipedia/en/thumb/e/e8/Inter_Miami_CF_logo.svg/1200px-Inter_Miami_CF_logo.svg.png', league: 'MLS', nationality: 'Аргентина', nationalityFlag: '🇦🇷', position: 'CAM', overall: 93, rating: 8.9, goals: 820, assists: 360, matches: 1045, description: 'Один из величайших футболистов всех времен.' },
-  { id: 'ronaldo', name: 'Криштиану Роналду', photo: 'https://upload.wikimedia.org/wikipedia/commons/2/23/Cristiano_Ronaldo_2018.jpg', team: 'Al Nassr FC', teamLogo: 'https://upload.wikimedia.org/wikipedia/en/thumb/5/54/Al_Nassr_FC_logo.svg/1200px-Al_Nassr_FC_logo.svg.png', league: 'Saudi Pro League', nationality: 'Португалия', nationalityFlag: '🇵🇹', position: 'ST', overall: 90, rating: 8.5, goals: 870, assists: 270, matches: 1200, description: 'Рекордсмен по голам в истории футбола.' },
-  { id: 'mbappe', name: 'Килиан Мбаппе', photo: 'https://upload.wikimedia.org/wikipedia/commons/b/b3/Mbapp%C3%A9_2022.jpg', team: 'Paris Saint-Germain', teamLogo: 'https://upload.wikimedia.org/wikipedia/en/thumb/4/47/Paris_Saint-Germain_F.C..svg/1200px-Paris_Saint-Germain_F.C..svg.png', league: 'Ligue 1', nationality: 'Франция', nationalityFlag: '🇫🇷', position: 'ST', overall: 91, rating: 8.8, goals: 300, assists: 150, matches: 400, description: 'Один из самых быстрых и талантливых нападающих мира.' },
-  { id: 'haaland', name: 'Эрлинг Холанд', photo: 'https://upload.wikimedia.org/wikipedia/commons/0/07/Erling_Haaland_2023_%28cropped%29.jpg', team: 'Manchester City', teamLogo: 'https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_logo.svg', league: 'Premier League', nationality: 'Норвегия', nationalityFlag: '🇳🇴', position: 'ST', overall: 91, rating: 8.7, goals: 200, assists: 40, matches: 250, description: 'Молодой феномен, забивающий голы пачками.' },
-  { id: 'salah', name: 'Мохамед Салах', photo: 'https://upload.wikimedia.org/wikipedia/commons/4/4e/Mohamed_Salah_2018.jpg', team: 'Liverpool', teamLogo: 'https://upload.wikimedia.org/wikipedia/en/0/0c/Liverpool_FC.svg', league: 'Premier League', nationality: 'Египет', nationalityFlag: '🇪🇬', position: 'RW', overall: 89, rating: 8.6, goals: 200, assists: 100, matches: 450, description: 'Один из лучших вингеров в мире.' },
-  { id: 'benzema', name: 'Карим Бензема', photo: 'https://upload.wikimedia.org/wikipedia/commons/0/06/Karim_Benzema_wearing_Real_Madrid_kit_2021.jpg', team: 'Al-Ittihad Club', teamLogo: 'https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Al-Ittihad_Club_logo.svg/1200px-Al-Ittihad_Club_logo.svg.png', league: 'Saudi Pro League', nationality: 'Франция', nationalityFlag: '🇫🇷', position: 'ST', overall: 89, rating: 8.4, goals: 400, assists: 180, matches: 800, description: 'Элегантный нападающий с отличным завершением.' },
-  { id: 'modric', name: 'Лука Модрич', photo: 'https://upload.wikimedia.org/wikipedia/commons/e/e9/Luka_Modri%C4%87_2022.jpg', team: 'Real Madrid', teamLogo: 'https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg', league: 'La Liga', nationality: 'Хорватия', nationalityFlag: '🇭🇷', position: 'CM', overall: 88, rating: 8.5, goals: 100, assists: 150, matches: 750, description: 'Маэстро полузащиты, обладатель Золотого мяча.' },
-  { id: 'kane', name: 'Гарри Кейн', photo: 'https://upload.wikimedia.org/wikipedia/commons/e/e1/Harry_Kane_2018.jpg', team: 'Bayern Munich', teamLogo: 'https://upload.wikimedia.org/wikipedia/commons/0/04/FC_Bayern_Munich_logo_%282017%29.svg', league: 'Bundesliga', nationality: 'Англия', nationalityFlag: '🏴󠁧󠁢󠁥󠁮󠁧󠁿', position: 'ST', overall: 90, rating: 8.7, goals: 300, assists: 80, matches: 500, description: 'Один из лучших центральных нападающих мира.' },
-  { id: 'neymar', name: 'Неймар', photo: 'https://upload.wikimedia.org/wikipedia/commons/6/65/Neymar_Jr._with_PSG%2C_2022.jpg', team: 'Al Hilal SFC', teamLogo: 'https://upload.wikimedia.org/wikipedia/en/thumb/e/e0/Al-Hilal_FC_logo.svg/1200px-Al-Hilal_FC_logo.svg.png', league: 'Saudi Pro League', nationality: 'Бразилия', nationalityFlag: '🇧🇷', position: 'LW', overall: 89, rating: 8.6, goals: 350, assists: 200, matches: 600, description: 'Бразильский виртуоз с невероятной техникой.' },
-  { id: 'de-bruyne', name: 'Кевин Де Брюйне', photo: 'https://upload.wikimedia.org/wikipedia/commons/4/46/Kevin_De_Bruyne_2018.jpg', team: 'Manchester City', teamLogo: 'https://upload.wikimedia.org/wikipedia/en/e/eb/Manchester_City_FC_logo.svg', league: 'Premier League', nationality: 'Бельгия', nationalityFlag: '🇧🇪', position: 'CM', overall: 91, rating: 8.9, goals: 150, assists: 250, matches: 600, description: 'Один из лучших плеймейкеров современности.' },
-];
+// Тестовые данные игроков удалены - используем API
 
 const FavoritesPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'teams' | 'players'>('teams');
   const [searchTermTeam, setSearchTermTeam] = useState<string>('');
   const [searchTermPlayer, setSearchTermPlayer] = useState<string>('');
+  const [allTeams, setAllTeams] = useState<Team[]>([]);
+  const [allPlayers, setAllPlayers] = useState<Player[]>([]);
+  const [loading, setLoading] = useState(true);
   const [favoriteTeams, setFavoriteTeams] = useState<Team[]>(() => {
     const savedFavorites = localStorage.getItem('favoriteTeams');
     return savedFavorites ? JSON.parse(savedFavorites) : [];
@@ -77,6 +53,27 @@ const FavoritesPage: React.FC = () => {
     const savedFavorites = localStorage.getItem('favoritePlayers');
     return savedFavorites ? JSON.parse(savedFavorites) : [];
   });
+
+  // Загружаем данные из API
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        const [teams, players] = await Promise.all([
+          getAllTeams(),
+          getAllPlayers()
+        ]);
+        setAllTeams(teams);
+        setAllPlayers(players);
+      } catch (error) {
+        console.error('Ошибка загрузки данных:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadData();
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('favoriteTeams', JSON.stringify(favoriteTeams));
@@ -140,6 +137,19 @@ const FavoritesPage: React.FC = () => {
       default: return '#64748b'; // Gray
     }
   };
+
+  if (loading) {
+    return (
+      <section className="favorites-page">
+        <div className="container">
+          <div className="loading-container">
+            <div className="loading-spinner"></div>
+            <p>Загружаем данные...</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="favorites-page">

@@ -19,38 +19,8 @@ const DataLoader: React.FC<DataLoaderProps> = ({ onDataLoaded }) => {
       // Имитируем загрузку данных
       await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Здесь можно добавить реальный API вызов
-      const mockData = {
-        teams: [
-          {
-            id: 'arsenal',
-            name: 'Arsenal',
-            league: 'Premier League',
-            country: 'Англия',
-            position: 1,
-            points: 44,
-            matches: 18,
-            wins: 14,
-            draws: 2,
-            losses: 2,
-            goalsFor: 45,
-            goalsAgainst: 10,
-            goalDifference: 35
-          }
-        ],
-        players: [
-          {
-            id: 'saka',
-            name: 'Букайо Сака',
-            team: 'Arsenal',
-            league: 'Premier League',
-            position: 'RW',
-            goals: 15,
-            assists: 12,
-            matches: 35
-          }
-        ]
-      };
+      // Тестовые данные удалены - используем реальный API
+      const mockData = null;
 
       setStatus('success');
       setMessage('Данные успешно загружены!');
@@ -142,7 +112,4 @@ const DataLoader: React.FC<DataLoaderProps> = ({ onDataLoaded }) => {
 };
 
 export default DataLoader;
-
-
-
 

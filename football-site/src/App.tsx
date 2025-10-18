@@ -11,7 +11,6 @@ import FavoritesPage from './components/FavoritesPage';
 import RightSidebar from './components/RightSidebar';
 import Footer from './components/Footer';
 import LoadingScreen from './components/LoadingScreen';
-import TestAPI from './components/TestAPI';
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -46,7 +45,6 @@ function App() {
                           <Route path="/teams" element={<TeamsPage />} />
                           <Route path="/players" element={<PlayersPage />} />
                           <Route path="/favorites" element={<FavoritesPage />} />
-                          <Route path="/test" element={<TestAPI />} />
                 </Routes>
           </main>
           <RightSidebar />

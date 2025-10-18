@@ -8,7 +8,7 @@ import {
   getPlayersByTeam, 
   getAllTeams, 
   getAllPlayers,
-  getMatches,
+  getMatchesByLeague,
   League,
   Team,
   Player
@@ -126,7 +126,7 @@ export const useMatches = (leagueId?: string) => {
         setError(null);
         console.log(`🔄 Загружаем матчи${leagueId ? ` для лиги ${leagueId}` : ''}...`);
         
-        const data = await getMatches(leagueId);
+        const data = await getMatchesByLeague(leagueId || 'all');
         setMatches(data);
         console.log('✅ Матчи загружены:', data.length);
       } catch (err) {

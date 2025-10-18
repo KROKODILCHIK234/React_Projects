@@ -30,40 +30,9 @@ const LeagueTable: React.FC<LeagueTableProps> = ({ leagueId, leagueName, onTeamS
   const [teams, setTeams] = useState<Team[]>([]);
 
   // Статические данные для разных лиг
+  // Тестовые данные удалены - используем API
   const getStaticTeams = (leagueId: string): Team[] => {
-    const teamsData: { [key: string]: Team[] } = {
-      'premier-league': [
-        { id: 'arsenal', name: 'Arsenal FC', logo: 'https://crests.football-data.org/57.png', position: 1, played: 7, won: 5, drawn: 1, lost: 1, goalsFor: 14, goalsAgainst: 3, goalDifference: 11, points: 16, form: ['W', 'W', 'D', 'W', 'W'], league: 'pl', country: 'England' },
-        { id: 'liverpool', name: 'Liverpool FC', logo: 'https://crests.football-data.org/64.png', position: 2, played: 7, won: 4, drawn: 3, lost: 0, goalsFor: 13, goalsAgainst: 9, goalDifference: 4, points: 15, form: ['W', 'W', 'D', 'W', 'D'], league: 'pl', country: 'England' },
-        { id: 'tottenham', name: 'Tottenham Hotspur FC', logo: 'https://crests.football-data.org/73.png', position: 3, played: 7, won: 4, drawn: 2, lost: 1, goalsFor: 13, goalsAgainst: 5, goalDifference: 8, points: 14, form: ['W', 'D', 'W', 'W', 'D'], league: 'pl', country: 'England' },
-        { id: 'man-city', name: 'Manchester City FC', logo: 'https://crests.football-data.org/65.png', position: 4, played: 7, won: 4, drawn: 1, lost: 2, goalsFor: 15, goalsAgainst: 6, goalDifference: 9, points: 13, form: ['W', 'D', 'W', 'L', 'W'], league: 'pl', country: 'England' },
-        { id: 'chelsea', name: 'Chelsea FC', logo: 'https://crests.football-data.org/61.png', position: 5, played: 7, won: 3, drawn: 2, lost: 2, goalsFor: 13, goalsAgainst: 9, goalDifference: 4, points: 11, form: ['D', 'W', 'L', 'W', 'D'], league: 'pl', country: 'England' }
-      ],
-      'la-liga': [
-        { id: 'real-madrid', name: 'Real Madrid CF', logo: 'https://crests.football-data.org/86.png', position: 1, played: 8, won: 7, drawn: 1, lost: 0, goalsFor: 22, goalsAgainst: 5, goalDifference: 17, points: 22, form: ['W', 'W', 'W', 'D', 'W'], league: 'pd', country: 'Spain' },
-        { id: 'barcelona', name: 'FC Barcelona', logo: 'https://crests.football-data.org/81.png', position: 2, played: 8, won: 6, drawn: 2, lost: 0, goalsFor: 20, goalsAgainst: 8, goalDifference: 12, points: 20, form: ['W', 'D', 'W', 'W', 'W'], league: 'pd', country: 'Spain' },
-        { id: 'atletico', name: 'Atlético de Madrid', logo: 'https://crests.football-data.org/78.png', position: 3, played: 8, won: 5, drawn: 2, lost: 1, goalsFor: 16, goalsAgainst: 7, goalDifference: 9, points: 17, form: ['W', 'D', 'W', 'D', 'W'], league: 'pd', country: 'Spain' },
-        { id: 'real-sociedad', name: 'Real Sociedad', logo: 'https://crests.football-data.org/559.png', position: 4, played: 8, won: 5, drawn: 1, lost: 2, goalsFor: 15, goalsAgainst: 10, goalDifference: 5, points: 16, form: ['W', 'W', 'D', 'L', 'W'], league: 'pd', country: 'Spain' },
-        { id: 'athletic', name: 'Athletic Club', logo: 'https://crests.football-data.org/77.png', position: 5, played: 8, won: 4, drawn: 3, lost: 1, goalsFor: 12, goalsAgainst: 8, goalDifference: 4, points: 15, form: ['D', 'W', 'D', 'W', 'D'], league: 'pd', country: 'Spain' }
-      ],
-      'bundesliga': [
-        { id: 'bayern', name: 'FC Bayern München', logo: 'https://crests.football-data.org/5.png', position: 1, played: 7, won: 6, drawn: 1, lost: 0, goalsFor: 18, goalsAgainst: 4, goalDifference: 14, points: 19, form: ['W', 'W', 'W', 'D', 'W'], league: 'bl1', country: 'Germany' },
-        { id: 'dortmund', name: 'Borussia Dortmund', logo: 'https://crests.football-data.org/4.png', position: 2, played: 7, won: 5, drawn: 1, lost: 1, goalsFor: 15, goalsAgainst: 8, goalDifference: 7, points: 16, form: ['W', 'D', 'W', 'W', 'L'], league: 'bl1', country: 'Germany' },
-        { id: 'leipzig', name: 'RB Leipzig', logo: 'https://crests.football-data.org/721.png', position: 3, played: 7, won: 4, drawn: 2, lost: 1, goalsFor: 12, goalsAgainst: 6, goalDifference: 6, points: 14, form: ['W', 'D', 'W', 'D', 'W'], league: 'bl1', country: 'Germany' }
-      ],
-      'serie-a': [
-        { id: 'juventus', name: 'Juventus FC', logo: 'https://crests.football-data.org/109.png', position: 1, played: 7, won: 6, drawn: 1, lost: 0, goalsFor: 16, goalsAgainst: 4, goalDifference: 12, points: 19, form: ['W', 'W', 'W', 'D', 'W'], league: 'sa', country: 'Italy' },
-        { id: 'inter', name: 'Inter Milan', logo: 'https://crests.football-data.org/108.png', position: 2, played: 7, won: 5, drawn: 2, lost: 0, goalsFor: 14, goalsAgainst: 6, goalDifference: 8, points: 17, form: ['W', 'D', 'W', 'W', 'D'], league: 'sa', country: 'Italy' },
-        { id: 'milan', name: 'AC Milan', logo: 'https://crests.football-data.org/98.png', position: 3, played: 7, won: 4, drawn: 2, lost: 1, goalsFor: 12, goalsAgainst: 8, goalDifference: 4, points: 14, form: ['W', 'D', 'W', 'D', 'W'], league: 'sa', country: 'Italy' }
-      ],
-      'ligue-1': [
-        { id: 'psg', name: 'Paris Saint-Germain', logo: 'https://crests.football-data.org/524.png', position: 1, played: 7, won: 6, drawn: 1, lost: 0, goalsFor: 18, goalsAgainst: 5, goalDifference: 13, points: 19, form: ['W', 'W', 'W', 'D', 'W'], league: 'fl1', country: 'France' },
-        { id: 'monaco', name: 'AS Monaco FC', logo: 'https://crests.football-data.org/548.png', position: 2, played: 7, won: 5, drawn: 1, lost: 1, goalsFor: 15, goalsAgainst: 8, goalDifference: 7, points: 16, form: ['W', 'D', 'W', 'W', 'L'], league: 'fl1', country: 'France' },
-        { id: 'marseille', name: 'Olympique de Marseille', logo: 'https://crests.football-data.org/516.png', position: 3, played: 7, won: 4, drawn: 2, lost: 1, goalsFor: 12, goalsAgainst: 7, goalDifference: 5, points: 14, form: ['W', 'D', 'W', 'D', 'W'], league: 'fl1', country: 'France' }
-      ]
-    };
-
-    return teamsData[leagueId] || [];
+    return [];
   };
 
   // Загружаем команды при изменении лиги
