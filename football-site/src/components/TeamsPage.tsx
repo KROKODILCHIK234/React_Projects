@@ -61,15 +61,13 @@ const TeamsPage: React.FC = () => {
   console.log('🔍 TeamsPage - loading:', teamsLoading);
   console.log('🔍 TeamsPage - error:', teamsError);
 
-  // Только 5 основных лиг
-  const mainLeagues = ['pl', 'pd', 'bl1', 'sa', 'fl1'];
-  const availableLeagues = ['all', ...mainLeagues];
+  // Только топ-5 европейских лиг
+  const availableLeagues = ['all', 'Premier League', 'La Liga', 'Bundesliga', 'Serie A', 'Ligue 1'];
 
   const filteredTeams = allTeams.filter(team => 
     (selectedLeague === 'all' || team.league === selectedLeague) &&
     (team.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     team.country.toLowerCase().includes(searchTerm.toLowerCase())) &&
-    (selectedLeague === 'all' || mainLeagues.includes(team.league))
+     team.country.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const getLeagueFullName = (leagueCode: string) => {

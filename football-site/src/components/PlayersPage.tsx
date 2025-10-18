@@ -39,6 +39,7 @@ const PlayersPage: React.FC = () => {
         console.log('📊 Вызываем getLeagues...');
         const leagues = await getLeagues();
         console.log('✅ Получили лиги:', leagues.length);
+        console.log('✅ Названия лиг:', leagues.map(l => l.name));
         setLeaguesData(leagues);
         setLeaguesLoading(false);
         
@@ -59,22 +60,31 @@ const PlayersPage: React.FC = () => {
 
   // 🔍 Отладочная информация
   console.log('🔍 PlayersPage - allPlayers:', allPlayers.length);
+  console.log('🔍 PlayersPage - leaguesData:', leaguesData.length);
+  console.log('🔍 PlayersPage - leaguesData names:', leaguesData.map(l => l.name));
   console.log('🔍 PlayersPage - loading:', playersLoading);
   console.log('🔍 PlayersPage - error:', playersError);
 
   // Только базовые позиции
   const basicPositions = ['GK', 'CB', 'RB', 'LB', 'CM', 'CAM', 'LW', 'ST', 'RW'];
-  const availableLeagues = ['all', ...Array.from(new Set(allPlayers.map(player => player.league)))];
+  
+  // Оставляем только топ-5 европейских лиг
+  const availableLeagues = ['all', 'Premier League', 'La Liga', 'Bundesliga', 'Serie A', 'Ligue 1'];
   const availablePositions = ['all', ...basicPositions];
 
-  const filteredPlayers = allPlayers.filter(player =>
-    (selectedLeague === 'all' || player.league === selectedLeague) &&
-    (selectedPosition === 'all' || player.position === selectedPosition) &&
-    (player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     player.team.toLowerCase().includes(searchTerm.toLowerCase()) ||
-     player.nationality.toLowerCase().includes(searchTerm.toLowerCase())) &&
-    (selectedPosition === 'all' || basicPositions.includes(player.position))
-  );
+  const filteredPlayers = allPlayers.filter(player => {
+    // Проверяем лигу по названию из фиксированного списка
+    const leagueMatch = selectedLeague === 'all' || 
+      player.league === selectedLeague || 
+      (leaguesData.find(league => league.id === player.league)?.name === selectedLeague);
+    
+    return leagueMatch &&
+      (selectedPosition === 'all' || player.position === selectedPosition) &&
+      (player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       player.team.toLowerCase().includes(searchTerm.toLowerCase()) ||
+       player.nationality.toLowerCase().includes(searchTerm.toLowerCase())) &&
+      (selectedPosition === 'all' || basicPositions.includes(player.position));
+  });
 
   const getPositionColor = (position: string) => {
     switch (position) {

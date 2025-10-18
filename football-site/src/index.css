@@ -104,42 +104,6 @@ html {
 }
 
 /* Search and Filter Styles */
-.search-container {
-  position: relative;
-  margin-bottom: 20px;
-}
-
-.search-input {
-  width: 100%;
-  padding: 16px 20px 16px 50px;
-  border: 2px solid var(--border-color);
-  border-radius: 25px;
-  background: var(--bg-card);
-  color: var(--text-primary);
-  font-size: 16px;
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow-secondary);
-}
-
-.search-input:focus {
-  outline: none;
-  border-color: var(--purple-bright);
-  box-shadow: var(--shadow-glow);
-  background: var(--bg-tertiary);
-}
-
-.search-icon {
-  position: absolute;
-  left: 18px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-muted);
-  transition: color 0.3s ease;
-}
-
-.search-input:focus + .search-icon {
-  color: var(--purple-bright);
-}
 
 .filter-btn {
   padding: 10px 20px;
@@ -1770,15 +1734,17 @@ body {
 
 .search-icon {
   position: absolute;
-  left: 16px;
+  left: 20px;
   top: 50%;
   transform: translateY(-50%);
   color: var(--text-muted);
+  z-index: 1;
+  transition: color 0.3s ease;
 }
 
 .search-input {
   width: 100%;
-  padding: 16px 16px 16px 48px;
+  padding: 16px 20px 16px 60px;
   border: 2px solid var(--border-color);
   border-radius: 12px;
   background: var(--bg-secondary);
@@ -1791,6 +1757,10 @@ body {
   outline: none;
   border-color: var(--accent-primary);
   box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+}
+
+.search-input:focus + .search-icon {
+  color: var(--accent-primary);
 }
 
 .filters-row {
@@ -2398,7 +2368,7 @@ body {
 
 .search-input {
   width: 100%;
-  padding: 16px 20px;
+  padding: 16px 20px 16px 60px;
   background: var(--gray-800);
   border: 1px solid var(--gray-700);
   border-radius: 12px;
@@ -2415,6 +2385,20 @@ body {
 
 .search-input::placeholder {
   color: var(--gray-400);
+}
+
+.search-icon {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  z-index: 1;
+  transition: color 0.3s ease;
+}
+
+.search-input:focus + .search-icon {
+  color: var(--accent-primary);
 }
 
 .selected-team {
