@@ -82,10 +82,22 @@ const handleApiError = (error: any) => {
 };
 
 // 📊 Загрузка данных из Python API
-const loadPythonData = async () => {
+const loadPythonData = async (leagueId?: string) => {
   try {
+    // Определяем endpoint в зависимости от лиги
+    let endpoint = 'http://localhost:8000/standings'; // Premier League по умолчанию
+    if (leagueId === 'la-liga') {
+      endpoint = 'http://localhost:8000/standings/la-liga';
+    } else if (leagueId === 'bundesliga') {
+      endpoint = 'http://localhost:8000/standings/bundesliga';
+    } else if (leagueId === 'serie-a') {
+      endpoint = 'http://localhost:8000/standings/serie-a';
+    } else if (leagueId === 'ligue-1') {
+      endpoint = 'http://localhost:8000/standings/ligue-1';
+    }
+    
     // Получаем данные с backend API
-    const response = await fetch('http://localhost:8000/standings');
+    const response = await fetch(endpoint);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -94,13 +106,41 @@ const loadPythonData = async () => {
     console.log('🔍 First team data:', data.table?.[0]);
     console.log('🔍 First team keys:', data.table?.[0] ? Object.keys(data.table[0]) : 'No data');
     
+    // Определяем параметры лиги
+    let leagueName = 'Premier League';
+    let country = 'Англия';
+    let leagueIdFinal = 'premier-league';
+    let logo = 'https://upload.wikimedia.org/wikipedia/en/f/f2/Premier_League_Logo.svg';
+    
+    if (leagueId === 'la-liga') {
+      leagueName = 'La Liga';
+      country = 'Испания';
+      leagueIdFinal = 'la-liga';
+      logo = 'https://upload.wikimedia.org/wikipedia/en/9/9d/LaLiga_logo.svg';
+    } else if (leagueId === 'bundesliga') {
+      leagueName = 'Bundesliga';
+      country = 'Германия';
+      leagueIdFinal = 'bundesliga';
+      logo = 'https://upload.wikimedia.org/wikipedia/en/5/5a/Bundesliga_logo.svg';
+    } else if (leagueId === 'serie-a') {
+      leagueName = 'Serie A';
+      country = 'Италия';
+      leagueIdFinal = 'serie-a';
+      logo = 'https://upload.wikimedia.org/wikipedia/en/8/8b/Serie_A_logo.svg';
+    } else if (leagueId === 'ligue-1') {
+      leagueName = 'Ligue 1';
+      country = 'Франция';
+      leagueIdFinal = 'ligue-1';
+      logo = 'https://upload.wikimedia.org/wikipedia/en/1/1f/Ligue_1_Uber_Eats_logo.svg';
+    }
+    
     // Преобразуем данные в формат, ожидаемый фронтендом
     return {
       leagues: [{
-        id: 'premier-league',
-        name: data.competition,
-        country: 'Англия',
-        logo: 'https://upload.wikimedia.org/wikipedia/en/f/f2/Premier_League_Logo.svg',
+        id: leagueIdFinal,
+        name: leagueName,
+        country: country,
+        logo: logo,
         season: data.season,
         teamsCount: data.table.length,
         playersCount: 0
@@ -109,13 +149,13 @@ const loadPythonData = async () => {
         id: team.name.toLowerCase().replace(/\s+/g, '-'),
         name: team.name,
         logo: team.crest,
-        league: 'Premier League',
-        country: 'Англия',
+        league: leagueName,
+        country: country,
         stadium: 'Unknown',
         coach: 'Unknown',
         playersCount: 25,
         titles: 0,
-        description: `${team.name} - команда из Premier League`,
+        description: `${team.name} - команда из ${leagueName}`,
         founded: 1900,
         position: team.position,
         played: team.played,
@@ -161,21 +201,10 @@ export const getTeamsByLeague = async (leagueId: string): Promise<Team[]> => {
   try {
     console.log(`🔄 Загружаем команды лиги: ${leagueId}`);
     
-    const pythonData = await loadPythonData();
+    const pythonData = await loadPythonData(leagueId);
     if (pythonData && pythonData.teams) {
-      // Маппинг названий лиг
-      const leagueMapping: { [key: string]: string } = {
-        'premier-league': 'Premier League',
-        'la-liga': 'La Liga',
-        'bundesliga': 'Bundesliga',
-        'serie-a': 'Serie A',
-        'ligue-1': 'Ligue 1'
-      };
-      
-      const leagueName = leagueMapping[leagueId] || leagueId;
-      const leagueTeams = pythonData.teams.filter((team: Team) => team.league === leagueName);
-      console.log(`✅ Найдено команд для лиги ${leagueName}: ${leagueTeams.length}`);
-      return leagueTeams;
+      console.log(`✅ Найдено команд для лиги ${leagueId}: ${pythonData.teams.length}`);
+      return pythonData.teams;
     }
     
     return [];

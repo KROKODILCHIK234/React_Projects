@@ -4,13 +4,14 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-API_URL = "https://api.football-data.org/v4/competitions/PL/standings"
+API_BASE_URL = "https://api.football-data.org/v4"
 HEADERS = {"X-Auth-Token": os.getenv("API_KEY")}
 
 
-def fetch_standings_normalized():
+def fetch_standings_normalized(competition_id="PL"):
     """Делает запрос к football-data API и нормализует JSON."""
-    r = requests.get(API_URL, headers=HEADERS, timeout=10)
+    api_url = f"{API_BASE_URL}/competitions/{competition_id}/standings"
+    r = requests.get(api_url, headers=HEADERS, timeout=10)
     r.raise_for_status()
     data = r.json()
 
