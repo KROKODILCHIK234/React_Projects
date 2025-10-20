@@ -29,6 +29,10 @@ def fetch_standings_normalized():
             "goalsAgainst": row["goalsAgainst"],
             "goalDifference": row["goalDifference"],
             "crest": team["crest"],
+            "played": row["playedGames"],
+            "won": row["won"],
+            "drawn": row["draw"],
+            "lost": row["lost"],
         })
 
     return {

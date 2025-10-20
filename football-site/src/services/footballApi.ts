@@ -14,7 +14,7 @@ export interface Team {
   titles: number;
   description: string;
   founded: number;
-  position?: number;
+  position: number;
   played?: number;
   won?: number;
   drawn?: number;
@@ -52,9 +52,11 @@ export interface League {
   name: string;
   country: string;
   logo: string;
-  founded: number;
-  teamsCount: number;
-  description: string;
+  founded?: number;
+  teamsCount?: number;
+  playersCount?: number;
+  description?: string;
+  season?: string;
   teams?: Team[];
   matches?: any[];
 }
@@ -82,11 +84,53 @@ const handleApiError = (error: any) => {
 // 📊 Загрузка данных из Python API
 const loadPythonData = async () => {
   try {
-    const response = await fetch('/api/football-data');
+    // Получаем данные с backend API
+    const response = await fetch('http://localhost:8000/standings');
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
-    return await response.json();
+    const data = await response.json();
+    console.log('🔍 Backend data:', data);
+    console.log('🔍 First team data:', data.table?.[0]);
+    console.log('🔍 First team keys:', data.table?.[0] ? Object.keys(data.table[0]) : 'No data');
+    
+    // Преобразуем данные в формат, ожидаемый фронтендом
+    return {
+      leagues: [{
+        id: 'premier-league',
+        name: data.competition,
+        country: 'Англия',
+        logo: 'https://upload.wikimedia.org/wikipedia/en/f/f2/Premier_League_Logo.svg',
+        season: data.season,
+        teamsCount: data.table.length,
+        playersCount: 0
+      }],
+      teams: data.table.map((team: any, index: number) => ({
+        id: team.name.toLowerCase().replace(/\s+/g, '-'),
+        name: team.name,
+        logo: team.crest,
+        league: 'Premier League',
+        country: 'Англия',
+        stadium: 'Unknown',
+        coach: 'Unknown',
+        playersCount: 25,
+        titles: 0,
+        description: `${team.name} - команда из Premier League`,
+        founded: 1900,
+        position: team.position,
+        played: team.played,
+        won: team.won,
+        drawn: team.drawn,
+        lost: team.lost,
+        goalsFor: team.goalsFor,
+        goalsAgainst: team.goalsAgainst,
+        goalDifference: team.goalDifference,
+        points: team.points,
+        form: ['W', 'W', 'D', 'W', 'W'] // Заглушка
+      })),
+      players: [],
+      matches: []
+    };
   } catch (error) {
     console.error('❌ Ошибка загрузки данных из Python API:', error);
     return null;
@@ -119,7 +163,18 @@ export const getTeamsByLeague = async (leagueId: string): Promise<Team[]> => {
     
     const pythonData = await loadPythonData();
     if (pythonData && pythonData.teams) {
-      const leagueTeams = pythonData.teams.filter((team: Team) => team.league === leagueId);
+      // Маппинг названий лиг
+      const leagueMapping: { [key: string]: string } = {
+        'premier-league': 'Premier League',
+        'la-liga': 'La Liga',
+        'bundesliga': 'Bundesliga',
+        'serie-a': 'Serie A',
+        'ligue-1': 'Ligue 1'
+      };
+      
+      const leagueName = leagueMapping[leagueId] || leagueId;
+      const leagueTeams = pythonData.teams.filter((team: Team) => team.league === leagueName);
+      console.log(`✅ Найдено команд для лиги ${leagueName}: ${leagueTeams.length}`);
       return leagueTeams;
     }
     

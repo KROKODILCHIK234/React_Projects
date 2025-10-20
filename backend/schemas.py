@@ -1,7 +1,6 @@
 from pydantic import BaseModel
 from typing import List
 
-
 class Team(BaseModel):
     position: int
     name: str
@@ -11,6 +10,10 @@ class Team(BaseModel):
     goalsAgainst: int
     goalDifference: int
     crest: str
+    played: int
+    won: int
+    drawn: int
+    lost: int
 
 
 class StandingsResponse(BaseModel):

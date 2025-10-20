@@ -1,23 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
-
-interface Team {
-  id: string;
-  name: string;
-  logo: string;
-  position: number;
-  played: number;
-  won: number;
-  drawn: number;
-  lost: number;
-  goalsFor: number;
-  goalsAgainst: number;
-  goalDifference: number;
-  points: number;
-  form: string[];
-  league?: string;
-  country?: string;
-}
+import { getTeamsByLeague, Team } from '../services/footballApi';
 
 interface LeagueTableProps {
   leagueId: string;
@@ -29,16 +12,21 @@ const LeagueTable: React.FC<LeagueTableProps> = ({ leagueId, leagueName, onTeamS
   const [selectedTeam, setSelectedTeam] = useState<string | null>(null);
   const [teams, setTeams] = useState<Team[]>([]);
 
-  // Статические данные для разных лиг
-  // Тестовые данные удалены - используем API
-  const getStaticTeams = (leagueId: string): Team[] => {
-    return [];
-  };
-
   // Загружаем команды при изменении лиги
-  React.useEffect(() => {
-    const teamsData = getStaticTeams(leagueId);
-    setTeams(teamsData);
+  useEffect(() => {
+    const loadTeams = async () => {
+      try {
+        console.log(`🔄 Загружаем команды для лиги: ${leagueId}`);
+        const teamsData = await getTeamsByLeague(leagueId);
+        setTeams(teamsData);
+        console.log(`✅ Загружено команд: ${teamsData.length}`);
+      } catch (error) {
+        console.error('❌ Ошибка загрузки команд:', error);
+        setTeams([]);
+      }
+    };
+
+    loadTeams();
   }, [leagueId]);
 
   const handleTeamClick = (teamId: string) => {
@@ -119,7 +107,15 @@ const LeagueTable: React.FC<LeagueTableProps> = ({ leagueId, leagueName, onTeamS
                       <img
                         src={team.logo}
                         alt={team.name}
-                        className="w-8 h-8 rounded-full object-contain bg-white p-1 shadow-md"
+                        className="w-8 h-8 rounded-full object-cover bg-white p-1 shadow-md flex-shrink-0"
+                        style={{
+                          width: '32px',
+                          height: '32px',
+                          minWidth: '32px',
+                          minHeight: '32px',
+                          maxWidth: '32px',
+                          maxHeight: '32px'
+                        }}
                         onError={(e) => {
                           e.currentTarget.src = 'https://via.placeholder.com/32x32/cccccc/666666?text=FC';
                         }}
@@ -140,11 +136,11 @@ const LeagueTable: React.FC<LeagueTableProps> = ({ leagueId, leagueName, onTeamS
                 </td>
                 <td className="px-6 py-4 text-center text-sm">
                   <span className={`inline-flex items-center justify-center w-12 h-8 rounded-full font-bold ${
-                    team.goalDifference >= 0 
+                    (team.goalDifference || 0) >= 0 
                       ? 'bg-green-600 text-white' 
                       : 'bg-red-600 text-white'
                   }`}>
-                    {team.goalDifference > 0 ? '+' : ''}{team.goalDifference}
+                    {(team.goalDifference || 0) > 0 ? '+' : ''}{team.goalDifference || 0}
                   </span>
                 </td>
                 <td className="px-6 py-4 text-center text-sm font-medium text-gray-300">
