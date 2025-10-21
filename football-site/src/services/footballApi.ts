@@ -214,6 +214,46 @@ export const getTeamsByLeague = async (leagueId: string): Promise<Team[]> => {
   }
 };
 
+// ⚽ Получение всех игроков Premier League
+export const getAllPlayers = async (): Promise<Player[]> => {
+  try {
+    console.log('🔄 Загружаем всех игроков Premier League...');
+    
+    const response = await fetch('http://localhost:8000/players/premier-league');
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    const data = await response.json();
+    console.log('🔍 Players data:', data);
+    console.log('🔍 Total players:', data.players?.length || 0);
+    console.log('🔍 First 3 players:', data.players?.slice(0, 3));
+    
+        // Преобразуем реальные данные в формат, ожидаемый фронтендом
+        const players = data.players?.map((player: any) => ({
+          id: player.id.toString(),
+          name: player.name,
+          position: player.position || 'Unknown',
+          nationality: player.nationality || 'Unknown',
+          team: player.team,
+          age: player.age || 25,
+          goals: 0, // Статистика не доступна в базовом API
+          assists: 0, // Статистика не доступна в базовом API
+          matches: 0, // Статистика не доступна в базовом API
+          rating: "7.5", // Базовый рейтинг
+          photo: `https://ui-avatars.com/api/?name=${encodeURIComponent(player.name)}&size=150&background=cccccc&color=666666`,
+          shirtNumber: player.shirtNumber,
+          league: 'Premier League',
+          overall: 75 // Базовый рейтинг
+        })) || [];
+    
+    console.log(`✅ Загружено игроков: ${players.length}`);
+    return players;
+  } catch (error) {
+    handleApiError(error);
+    return [];
+  }
+};
+
 // ⚽ Получение игроков команды
 export const getPlayersByTeam = async (teamId: string): Promise<Player[]> => {
   try {
@@ -252,25 +292,6 @@ export const getAllTeams = async (): Promise<Team[]> => {
   }
 };
 
-// ⚽ Получение всех игроков
-export const getAllPlayers = async (): Promise<Player[]> => {
-  try {
-    console.log('🔄 Загружаем всех игроков...');
-    
-    const pythonData = await loadPythonData();
-    if (pythonData && pythonData.players && pythonData.players.length > 0) {
-      console.log('✅ Получено игроков из API:', pythonData.players.length);
-      return pythonData.players;
-    }
-    
-    console.log('⚠️ API данные недоступны, возвращаем пустой массив');
-    return [];
-  } catch (error) {
-    console.error('❌ Ошибка в getAllPlayers:', error);
-    handleApiError(error);
-    return [];
-  }
-};
 
 // ⚽ Получение матчей лиги
 export const getMatchesByLeague = async (leagueId: string): Promise<Match[]> => {

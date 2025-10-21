@@ -9,6 +9,18 @@ const PlayersPage: React.FC = () => {
   const [selectedLeague, setSelectedLeague] = useState('all');
   const [selectedPosition, setSelectedPosition] = useState('all');
   const [selectedPlayer, setSelectedPlayer] = useState<any>(null);
+  const [favoritePlayers, setFavoritePlayers] = useState<string[]>([]);
+
+  // 🔧 Функции для работы с избранными игроками
+  const toggleFavorite = (playerId: string) => {
+    setFavoritePlayers(prev => 
+      prev.includes(playerId) 
+        ? prev.filter(id => id !== playerId)
+        : [...prev, playerId]
+    );
+  };
+
+  const isFavorite = (playerId: string) => favoritePlayers.includes(playerId);
 
   // 🔧 Временно используем прямые вызовы API вместо хуков
   const [allPlayers, setAllPlayers] = useState<any[]>([]);
@@ -33,6 +45,7 @@ const PlayersPage: React.FC = () => {
         console.log('📊 Вызываем getAllPlayers...');
         const players = await getAllPlayers();
         console.log('✅ Получили игроков:', players.length);
+        console.log('✅ Первые 3 игрока:', players.slice(0, 3));
         setAllPlayers(players);
         setPlayersLoading(false);
         
@@ -60,61 +73,68 @@ const PlayersPage: React.FC = () => {
 
   // 🔍 Отладочная информация
   console.log('🔍 PlayersPage - allPlayers:', allPlayers.length);
+  console.log('🔍 PlayersPage - allPlayers sample:', allPlayers.slice(0, 3));
   console.log('🔍 PlayersPage - leaguesData:', leaguesData.length);
   console.log('🔍 PlayersPage - leaguesData names:', leaguesData.map(l => l.name));
   console.log('🔍 PlayersPage - loading:', playersLoading);
   console.log('🔍 PlayersPage - error:', playersError);
+  console.log('🔍 PlayersPage - selectedLeague:', selectedLeague);
+  console.log('🔍 PlayersPage - selectedPosition:', selectedPosition);
 
-  // Только базовые позиции
-  const basicPositions = ['GK', 'CB', 'RB', 'LB', 'CM', 'CAM', 'LW', 'ST', 'RW'];
+  // Позиции на русском языке для отображения
+  const positionTranslations = {
+    'Goalkeeper': 'Вратарь',
+    'Centre-Back': 'Центральный защитник', 
+    'Right-Back': 'Правый защитник',
+    'Left-Back': 'Левый защитник',
+    'Defensive Midfield': 'Центральный полузащитник',
+    'Attacking Midfield': 'Центральный атакующий полузащитник',
+    'Left Winger': 'Левый вингер',
+    'Centre-Forward': 'Нападающий',
+    'Right Winger': 'Правый вингер'
+  };
   
   // Оставляем только топ-5 европейских лиг
   const availableLeagues = ['all', 'Premier League', 'La Liga', 'Bundesliga', 'Serie A', 'Ligue 1'];
-  const availablePositions = ['all', ...basicPositions];
+  const availablePositions = ['all', ...Object.values(positionTranslations)];
 
   const filteredPlayers = allPlayers.filter(player => {
     // Проверяем лигу по названию из фиксированного списка
     const leagueMatch = selectedLeague === 'all' || 
-      player.league === selectedLeague || 
-      (leaguesData.find(league => league.id === player.league)?.name === selectedLeague);
+      player.league === selectedLeague;
     
-    return leagueMatch &&
-      (selectedPosition === 'all' || player.position === selectedPosition) &&
-      (player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       player.team.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       player.nationality.toLowerCase().includes(searchTerm.toLowerCase())) &&
-      (selectedPosition === 'all' || basicPositions.includes(player.position));
+    // Проверяем позицию с учетом переводов
+    const positionMatch = selectedPosition === 'all' || 
+      positionTranslations[player.position as keyof typeof positionTranslations] === selectedPosition;
+    
+    const searchMatch = player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      player.team.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      player.nationality.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    return leagueMatch && positionMatch && searchMatch;
   });
+
 
   const getPositionColor = (position: string) => {
     switch (position) {
-      case 'GK': return '#3b82f6'; // Blue - Вратарь
-      case 'CB': return '#10b981'; // Green - Центральный защитник
-      case 'RB': return '#6366f1'; // Indigo - Правый защитник
-      case 'LB': return '#6366f1'; // Indigo - Левый защитник
-      case 'CM': return '#06b6d4'; // Cyan - Центральный полузащитник
-      case 'CAM': return '#8b5cf6'; // Purple - Центральный атакующий полузащитник
-      case 'LW': return '#f59e0b'; // Orange - Левый вингер
-      case 'ST': return '#ef4444'; // Red - Нападающий
-      case 'RW': return '#f59e0b'; // Orange - Правый вингер
+      case 'Goalkeeper': return '#3b82f6'; // Blue - Вратарь
+      case 'Centre-Back': return '#10b981'; // Green - Центральный защитник
+      case 'Right-Back': return '#6366f1'; // Indigo - Правый защитник
+      case 'Left-Back': return '#6366f1'; // Indigo - Левый защитник
+      case 'Defensive Midfield': return '#06b6d4'; // Cyan - Центральный полузащитник
+      case 'Attacking Midfield': return '#8b5cf6'; // Purple - Центральный атакующий полузащитник
+      case 'Left Winger': return '#f59e0b'; // Orange - Левый вингер
+      case 'Centre-Forward': return '#ef4444'; // Red - Нападающий
+      case 'Right Winger': return '#f59e0b'; // Orange - Правый вингер
       default: return '#64748b'; // Gray
     }
   };
 
   const getPositionName = (position: string) => {
-    const positions: { [key: string]: string } = {
-      'GK': 'Вратарь',
-      'CB': 'Центральный защитник',
-      'RB': 'Правый защитник',
-      'LB': 'Левый защитник',
-      'CM': 'Центральный полузащитник',
-      'CAM': 'Центральный атакующий полузащитник',
-      'LW': 'Левый вингер',
-      'ST': 'Нападающий',
-      'RW': 'Правый вингер'
-    };
-    return positions[position] || position;
+    return positionTranslations[position as keyof typeof positionTranslations] || position;
   };
+
+
 
   if (playersLoading || leaguesLoading) {
     return (
@@ -223,94 +243,143 @@ const PlayersPage: React.FC = () => {
           </div>
         </div>
 
-        <div className="players-grid">
-          {filteredPlayers.length > 0 ? (
-            filteredPlayers.map((player, index) => (
-              <ScrollAnimation key={player.id} animation="scaleIn" delay={index * 100}>
-                <div className="player-card" onClick={() => setSelectedPlayer(player)}>
-                  <div className="player-card-header">
-                    <img 
-                      src={player.photo} 
-                      alt={player.name} 
-                      className="player-photo"
-                      onError={(e) => { 
-                        const target = e.target as HTMLImageElement; 
-                        const firstChar = player.name.charAt(0).toUpperCase();
-                        target.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`
-                          <svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
-                            <rect width="200" height="200" fill="#8b5cf6"/>
-                            <text x="50%" y="50%" font-family="Arial" font-size="60" fill="white" text-anchor="middle" dy=".3em">${firstChar}</text>
-                          </svg>
-                        `)}`; 
-                      }} 
-                    />
-                    <div className="player-badges">
-                      <span
-                        className="position-badge"
-                        style={{ backgroundColor: getPositionColor(player.position) }}
-                      >
-                        {player.position}
-                      </span>
-                      <span className="rating-badge">
-                        <Star size={14} /> {player.overall} OVR
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <div className="player-card-content">
-                    <h3 className="player-name">{player.name}</h3>
-                    
-                    <div className="player-team">
-                      <img 
-                        src={player.teamLogo} 
-                        alt={player.team} 
-                        className="team-logo-small"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                        }}
-                      />
-                      <span>{player.team}</span>
-                    </div>
-                    
-                    <div className="player-info">
-                      <div className="info-item">
-                        <Flag size={14} />
-                        <span>{player.nationality} {player.nationalityFlag}</span>
-                      </div>
-                      <div className="info-item">
-                        <Shirt size={14} />
-                        <span>{getPositionName(player.position)}</span>
-                      </div>
-                    </div>
-                    
-                    <div className="player-stats-row">
-                      <div className="player-stat-item">
-                        <Goal size={16} />
-                        <span>{player.goals} Голов</span>
-                      </div>
-                      <div className="player-stat-item">
-                        <Zap size={16} />
-                        <span>{player.assists} Ассистов</span>
-                      </div>
-                    </div>
-                    
-                    <div className="player-rating">
-                      <div className="rating-label">Рейтинг</div>
-                      <div className="rating-value">{player.rating}</div>
-                    </div>
-                  </div>
+    <div style={{ padding: '20px' }}>
+      <h2>Игроки Premier League ({filteredPlayers.length})</h2>
+      
+      {filteredPlayers.length > 0 ? (
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', 
+          gap: '15px',
+          marginTop: '20px'
+        }}>
+          {filteredPlayers.map((player, index) => (
+            <div 
+              key={player.id} 
+              style={{
+                background: 'white',
+                border: '1px solid #e5e7eb',
+                borderRadius: '8px',
+                padding: '15px',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                cursor: 'pointer',
+                transition: 'transform 0.2s'
+              }}
+              onClick={() => setSelectedPlayer(player)}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
+                <img 
+                  src={player.photo} 
+                  alt={player.name}
+                  style={{
+                    width: '50px',
+                    height: '50px',
+                    borderRadius: '50%',
+                    marginRight: '12px',
+                    objectFit: 'cover'
+                  }}
+                  onError={(e) => {
+                    const target = e.target as HTMLImageElement;
+                    const firstChar = player.name.charAt(0).toUpperCase();
+                    target.src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(`
+                      <svg width="50" height="50" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="50" height="50" fill="#8b5cf6"/>
+                        <text x="50%" y="50%" font-family="Arial" font-size="20" fill="white" text-anchor="middle" dy=".3em">${firstChar}</text>
+                      </svg>
+                    `)}`;
+                  }}
+                />
+                <div style={{ flex: 1 }}>
+                  <h3 style={{ margin: '0 0 5px 0', fontSize: '16px', fontWeight: 'bold' }}>
+                    {player.name}
+                  </h3>
+                  <p style={{ margin: '0', color: '#6b7280', fontSize: '14px' }}>
+                    {player.team}
+                  </p>
                 </div>
-              </ScrollAnimation>
-            ))
-          ) : (
-            <div className="no-results">
-              <Search size={48} />
-              <h3>Игроки не найдены</h3>
-              <p>Попробуйте изменить критерии поиска или фильтры.</p>
+                <button 
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '5px',
+                    borderRadius: '50%',
+                    color: isFavorite(player.id) ? '#fbbf24' : '#d1d5db'
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFavorite(player.id);
+                  }}
+                >
+                  <Star size={20} fill={isFavorite(player.id) ? 'currentColor' : 'none'} />
+                </button>
+              </div>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                <span style={{
+                  background: getPositionColor(player.position),
+                  color: 'white',
+                  padding: '4px 8px',
+                  borderRadius: '12px',
+                  fontSize: '12px',
+                  fontWeight: 'bold'
+                }}>
+                  {getPositionName(player.position)}
+                </span>
+                <span style={{
+                  background: '#f3f4f6',
+                  color: '#374151',
+                  padding: '4px 8px',
+                  borderRadius: '12px',
+                  fontSize: '12px',
+                  fontWeight: 'bold'
+                }}>
+                  {player.overall} OVR
+                </span>
+              </div>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '14px', color: '#6b7280' }}>
+                <span>🏴 {player.nationality}</span>
+                <span>👤 {player.age} лет</span>
+                <span># {player.shirtNumber || 'N/A'}</span>
+              </div>
+              
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                marginTop: '10px',
+                padding: '8px',
+                background: '#f9fafb',
+                borderRadius: '6px',
+                fontSize: '12px'
+              }}>
+                <span>⚽ {player.goals} Голов</span>
+                <span>🎯 {player.assists} Ассистов</span>
+                <span>🏆 {player.matches} Матчей</span>
+              </div>
             </div>
-          )}
+          ))}
         </div>
+      ) : (
+        <div style={{
+          textAlign: 'center',
+          padding: '40px',
+          color: '#6b7280'
+        }}>
+          <Search size={48} style={{ marginBottom: '16px' }} />
+          <h3>Игроки не найдены</h3>
+          <p>Попробуйте изменить критерии поиска или фильтры.</p>
+        </div>
+      )}
+    </div>
 
         {/* Модальное окно с детальной информацией об игроке */}
         {selectedPlayer && (

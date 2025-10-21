@@ -4740,8 +4740,39 @@ body {
   align-items: center;
   margin-top: 12px;
   padding: 8px 12px;
-  background: var(--bg-tertiary);
-  border-radius: 8px;
+}
+
+/* Favorite Button Styles */
+.favorite-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: #fff;
+  z-index: 10;
+}
+
+.favorite-btn:hover {
+  background: rgba(0, 0, 0, 0.8);
+  transform: scale(1.1);
+}
+
+.favorite-btn.favorited {
+  color: #fbbf24;
+  background: rgba(251, 191, 36, 0.2);
+}
+
+.favorite-btn.favorited:hover {
+  background: rgba(251, 191, 36, 0.3);
 }
 
 .rating-label {
